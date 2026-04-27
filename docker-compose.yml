@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: techskeladd-postgres
     image: postgres:15
     restart: always
     environment:
@@ -10,12 +11,21 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
     ports:
       - "${PORT_POSTGRES}:5432"
+    networks:
+      - techskeladd-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   odoo:
+    container_name: techskeladd-odoo
     image: odoo:17.0
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "${PORT_ODOO}:8069"
     environment:
@@ -23,23 +33,25 @@ services:
       - PORT=${POSTGRES_PORT}
       - USER=${POSTGRES_USER}
       - PASSWORD=${POSTGRES_PASSWORD}
-    command: ["odoo", "-i", "base", "-d", "${POSTGRES_DB}"]
+    command: odoo -d ${POSTGRES_DB} -i base --load=base,web
     volumes:
       - ./odoo_data:/var/lib/odoo
+    networks:
+      - techskeladd-net
 
   n8n:
+    container_name: techskeladd-n8n
     image: n8nio/n8n:latest
     restart: always
-    depends_on:
-      - db
     ports:
       - "${PORT_N8N}:5678"
     environment:
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=${POSTGRES_HOST}
-      - DB_POSTGRESDB_PORT=${POSTGRES_PORT}
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-      - DB_POSTGRESDB_USER=${POSTGRES_USER}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_TYPE=sqlite
     volumes:
       - ./n8n_data:/home/node/.n8n
+    networks:
+      - techskeladd-net
+
+networks:
+  techskeladd-net:
+    driver: bridge

@@ -6,26 +6,51 @@ The project solves a critical retail challenge: maintaining real-time inventory 
 
 ---
 
+## Project Status
+
+**Under Active Development** — Tracked via Jira Kanban Board.
+
+---
+
 ## The Business Case: Techskeladd Soft
+
 **Techskeladd Soft** specializes in high-demand technology hardware (GPUs, CPUs, and Peripherals). In an industry where stockouts mean lost revenue and prices fluctuate daily, the company required a "Single Source of Truth."
 
 **Techskeladd** acts as the technological backbone that ensures:
-* **Zero Stockouts:** Real-time monitoring of critical inventory.
-* **Automated Procurement:** Eliminating human error in Purchase Order creation.
-* **Data-Driven Decisions:** Live dashboards for executive management.
+- **Zero Stockouts:** Real-time monitoring of critical inventory levels.
+- **Automated Procurement:** Eliminating human error in Purchase Order creation.
+- **Data-Driven Decisions:** Live dashboards for executive management.
 
 ---
 
 ## Tech Stack & Engineering Pillars
-* **Backend:** NestJS (Node.js) with TypeScript.
-* **ERP:** Odoo 17 Community Edition (XML-RPC).
-* **Automation:** n8n (Self-hosted).
-* **BI & Analytics:** Power BI (Direct PostgreSQL connection).
-* **Infrastructure:** Docker & Docker Compose.
-* **CI/CD:** GitHub Actions (Automated testing with Jest).
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | NestJS (Node.js) · TypeScript |
+| **ERP** | Odoo 17 Community (XML-RPC) |
+| **Automation** | n8n (Self-hosted) |
+| **BI & Analytics** | Power BI Desktop (Direct PostgreSQL) |
+| **Infrastructure** | Docker · Docker Compose |
+| **CI/CD** | GitHub Actions · Jest · Supertest |
+| **Observability** | Pino (Structured JSON Logging) |
+| **API Docs** | Swagger / OpenAPI |
 
 ### Design Patterns & Principles
-* **Idempotency:** Ensuring resilient procurement workflows without duplicate orders.
-* **Layered Architecture:** Decoupled Controllers, Services, and Repositories.
-* **Repository Pattern:** Encapsulated ERP logic for high maintainability.
-* **Adapter Pattern:** Sanitizing and validating legacy data via **DTOs**.
+- **Idempotency:** Resilient procurement workflows — no duplicate Purchase Orders.
+- **Repository Pattern:** ERP communication fully encapsulated and swappable.
+- **Adapter Pattern:** Legacy Odoo data sanitized into typed DTOs via `class-validator`.
+- **Layered Architecture:** Decoupled Modules, Controllers, Services, and Repositories.
+- **Correlation IDs:** End-to-end request tracing across all systems.
+
+---
+
+## Quick Start
+
+> Full deployment instructions will be available upon project completion.
+
+```bash
+git clone https://github.com/your-username/techskeladd.git
+cd techskeladd
+cp .env.example .env
+docker compose up -d

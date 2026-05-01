@@ -1,0 +1,41 @@
+name: Develop — Lint & Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - develop
+    # Skip the pipeline entirely if the PR only touches docs, docker-compose,
+    # or any other file outside api/ — saves Actions minutes on irrelevant changes.
+    paths:
+      - 'api/**'
+
+jobs:
+  lint-and-test:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          # package-lock.json lives inside api/, not at the repo root.
+          # Without this path, setup-node can't find the lockfile and caching breaks.
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test

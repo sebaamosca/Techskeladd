@@ -1,13 +1,14 @@
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { v4 as uuidv4 } from 'uuid';
 import { validateEnv } from './config/env.validation';
+import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.interceptor';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 @Module({
   imports: [
-    // validate: validateEnv runs synchronously at startup — the app won't
-    // boot if a required variable is missing or has the wrong type.
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -20,9 +21,8 @@ import { validateEnv } from './config/env.validation';
 
         return {
           pinoHttp: {
-            // Reuse the incoming X-Correlation-Id header when present so
-            // upstream callers (e.g. n8n) can trace a request end-to-end.
-            // Fall back to a generated UUID when the header is absent.
+            // Reuse incoming X-Correlation-Id so upstream callers (n8n)
+            // can trace a request end-to-end.
             genReqId: (req) => {
               const existingId = req.headers['x-correlation-id'];
               return typeof existingId === 'string' && existingId.length > 0
@@ -51,6 +51,10 @@ import { validateEnv } from './config/env.validation';
         };
       },
     }),
+  ],
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: CorrelationIdInterceptor },
+    { provide: APP_FILTER, useClass: GlobalExceptionFilter },
   ],
 })
 export class AppModule {}

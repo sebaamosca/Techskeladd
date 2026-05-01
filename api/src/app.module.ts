@@ -1,4 +1,4 @@
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { validateEnv } from './config/env.validation';
 import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { ApiKeyGuard } from './common/guards/api-key.guard';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
     }),
   ],
   providers: [
+    { provide: APP_GUARD, useClass: ApiKeyGuard },
     { provide: APP_INTERCEPTOR, useClass: CorrelationIdInterceptor },
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
   ],

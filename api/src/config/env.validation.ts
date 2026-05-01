@@ -30,6 +30,10 @@ class EnvironmentVariables {
 
   @IsString()
   ODOO_PASSWORD!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  API_KEY!: string;
 }
 
 export function validateEnv(

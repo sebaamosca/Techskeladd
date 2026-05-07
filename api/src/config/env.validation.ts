@@ -6,8 +6,8 @@ import {
   IsUrl,
   Min,
   Max,
-  validateSync,
   IsNotEmpty,
+  validateSync,
 } from 'class-validator';
 
 class EnvironmentVariables {
@@ -17,7 +17,6 @@ class EnvironmentVariables {
   @Max(65535)
   API_PORT: number = 3000;
 
-  // require_tld: false allows internal Docker hostnames like http://odoo:8069
   @IsUrl({ require_tld: false })
   ODOO_URL!: string;
 
@@ -26,14 +25,26 @@ class EnvironmentVariables {
   ODOO_DB!: string;
 
   @IsString()
+  @IsNotEmpty()
   ODOO_USERNAME!: string;
 
   @IsString()
+  @IsNotEmpty()
   ODOO_PASSWORD!: string;
 
   @IsString()
   @IsNotEmpty()
   API_KEY!: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  THROTTLE_TTL: number = 60;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  THROTTLE_LIMIT: number = 10;
 }
 
 export function validateEnv(

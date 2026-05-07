@@ -50,9 +50,22 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           : ((responseBody as { message?: string }).message ??
             exception.message);
 
+      const logData: Record<string, unknown> = {
+        correlationId,
+        method: req.method,
+        url: req.url,
+        statusCode,
+      };
+
+      if (statusCode === HttpStatus.TOO_MANY_REQUESTS) {
+        logData.retryAfter = res.getHeader('Retry-After');
+      }
+
       this.logger.warn(
-        { correlationId, method: req.method, url: req.url, statusCode },
-        `HTTP exception: ${message}`,
+        logData,
+        statusCode === HttpStatus.TOO_MANY_REQUESTS
+          ? `Rate limit exceeded: ${message}`
+          : `HTTP exception: ${message}`,
       );
     } else {
       const err =

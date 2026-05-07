@@ -1,12 +1,14 @@
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { v4 as uuidv4 } from 'uuid';
 import { validateEnv } from './config/env.validation';
 import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
+import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 
 @Module({
   imports: [
@@ -14,6 +16,16 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
       isGlobal: true,
       envFilePath: '.env',
       validate: validateEnv,
+    }),
+
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.getOrThrow<number>('THROTTLE_TTL'),
+          limit: config.getOrThrow<number>('THROTTLE_LIMIT'),
+        },
+      ],
     }),
 
     LoggerModule.forRootAsync({
@@ -55,6 +67,7 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
   ],
   providers: [
     { provide: APP_GUARD, useClass: ApiKeyGuard },
+    { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: CorrelationIdInterceptor },
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
   ],

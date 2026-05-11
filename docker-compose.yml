@@ -33,7 +33,7 @@ services:
       - PORT=${POSTGRES_PORT}
       - USER=${POSTGRES_USER}
       - PASSWORD=${POSTGRES_PASSWORD}
-    command: odoo -d ${POSTGRES_DB} -i base,sale,purchase,stock --load=base,web --without-demo=all
+    command: odoo -d techskeladd_db -i l10n_generic_coa,sale,purchase,stock --db_host=db --db_user=${POSTGRES_USER} --db_password=${POSTGRES_PASSWORD} --without-demo=all --data-dir=/var/lib/odoo
     volumes:
       - ./odoo_data:/var/lib/odoo
     networks:

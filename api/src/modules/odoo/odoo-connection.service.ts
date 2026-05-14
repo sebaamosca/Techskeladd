@@ -80,4 +80,14 @@ export class OdooConnectionService implements OnModuleDestroy {
       });
     });
   }
+
+  async ping(): Promise<boolean> {
+    try {
+      await this.getClient();
+      return true;
+    } catch (error) {
+      this.logger.warn({ error }, 'Odoo ping failed');
+      return false;
+    }
+  }
 }

@@ -9,6 +9,8 @@ import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.i
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
+import { OdooModule } from './modules/odoo/odoo.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -64,6 +66,8 @@ import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
         };
       },
     }),
+    OdooModule,
+    HealthModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ApiKeyGuard },
